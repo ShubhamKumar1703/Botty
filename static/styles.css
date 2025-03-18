@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f7f7f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 700px; /* Increased width for better readability */
+  background-color: #fff;
+  border-radius: 12px; /* Slightly more rounded corners */
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 90vh; /* Increased height */
+  overflow: hidden;
+}
+
+.chat-header {
+  background-color: #4f4f4f;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 26px; /* Slightly larger font */
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-header p {
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.chat-box {
+  padding: 25px; /* Added more padding */
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  height: calc(100% - 140px); /* Adjusted height dynamically */
+  scrollbar-width: thin; /* Thin scrollbar for modern browsers */
+}
+
+.chat-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.chat-message {
+  margin: 15px 0; /* Increased spacing between messages */
+  padding: 15px 20px; /* More padding for messages */
+  border-radius: 18px;
+  font-size: 16px;
+  max-width: 85%; /* Slightly wider messages */
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.chat-message.user {
+  background-color: #0078d4;
+  color: white;
+  align-self: flex-end;
+  border-top-left-radius: 0;
+}
+
+.chat-message.bot {
+  background-color: #e5e5e5;
+  color: #333;
+  align-self: flex-start;
+  border-top-right-radius: 0;
+}
+
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  padding: 20px; /* Added more padding */
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input-container input {
+  flex: 1;
+  padding: 15px; /* Increased padding */
+  font-size: 18px; /* Slightly larger font */
+  border-radius: 25px;
+  border: 2px solid #ddd;
+  margin-right: 12px; /* More spacing between input and button */
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.chat-input-container input:focus {
+  border-color: #0078d4;
+}
+
+.chat-input-container button {
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  padding: 15px 25px; /* Larger button for better usability */
+  font-size: 16px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chat-input-container button:hover {
+  background-color: #005a8a;
+}
+
+.chat-input-container button:focus {
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  .chat-container {
+      width: 95%; /* Increased width for small screens */
+      height: 95vh; /* Utilized most of the viewport height */
+  }
+
+  .chat-box {
+      padding: 15px; /* Reduced padding for mobile */
+  }
+
+  .chat-input-container input {
+      padding: 12px; /* Adjusted padding for mobile */
+      font-size: 16px;
+  }
+
+  .chat-input-container button {
+      padding: 12px 18px; /* Adjusted button size for mobile */
+      font-size: 14px;
+  }
+}

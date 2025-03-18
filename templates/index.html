@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Chatbot</h1>
+      <p>Start chatting with your virtual assistant</p>
+    </div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-input-container">
+      <input type="text" id="user-input" placeholder="Type your message..." autofocus>
+      <button onclick="sendMessage()">Send</button>
+      <button onclick="startListening()">🎤 Start Listening</button>
+      <button onclick="stopListening()">🛑 Stop Listening</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+
+    let isSpeaking = false; // Flag to track if the bot is speaking
+    let recognition; // Speech recognition instance
+    let isListening = false; // Flag to track if listening is enabled
+
+    function appendMessage(sender, message, isHtml = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${sender}`;
+      
+      // Render the message as HTML if required
+      if (isHtml) {
+        messageDiv.innerHTML = message;
+      } else {
+        messageDiv.textContent = message;
+      }
+      
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage(message = null) {
+      const userMessage = message || userInput.value.trim().toLowerCase();
+      if (!userMessage) return;
+
+      appendMessage('user', userMessage);
+      userInput.value = '';
+
+      if (userMessage === "stop") {
+        if (speechSynthesis.speaking) {
+          speechSynthesis.cancel(); // Stop the bot from speaking
+        }
+        appendMessage("bot", "Speaking functionality has been stopped.");
+        return;
+      }
+
+      appendMessage('bot', '...');
+
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      const data = await response.json();
+      const botReply = data.reply;
+
+      chatBox.lastChild.textContent = botReply;
+
+      // Speak the bot's response
+      speak(botReply);
+    }
+
+    function speak(text) {
+      // Stop any ongoing speech synthesis
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+
+      const cleanText = text.replace(/<[^>]*>/g, "");
+
+      // Create a new speech synthesis utterance
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'en-US';
+      isSpeaking = true;
+
+      // When bot finishes speaking, start listening again (if enabled)
+      utterance.onend = () => {
+        isSpeaking = false;
+        if (isListening) {
+          startListening();
+        }
+      };
+
+      speechSynthesis.speak(utterance);
+    }
+
+    function startListening() {
+      if (!recognition) {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = "en-US";
+
+        recognition.onstart = () => {
+          console.log("Listening...");
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript.toLowerCase();
+
+          // Stop the bot's speech if the user says "stop"
+          if (transcript === "stop") {
+            if (speechSynthesis.speaking) {
+              speechSynthesis.cancel();
+            }
+            appendMessage("user", transcript);
+            appendMessage("bot", "Speaking functionality has been stopped.");
+            return;
+          }
+
+          userInput.value = transcript;
+          sendMessage(transcript);
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error:", event.error);
+        };
+
+        recognition.onend = () => {
+          if (isListening && !isSpeaking) {
+            recognition.start();
+          }
+        };
+      }
+
+      isListening = true; // Enable listening
+      recognition.start();
+    }
+
+    function stopListening() {
+      if (recognition) {
+        recognition.stop(); // Stop the recognition process
+        isListening = false; // Disable listening
+        console.log('Listening stopped.');
+      }
+    }
+  </script>
+</body>
+</html>
